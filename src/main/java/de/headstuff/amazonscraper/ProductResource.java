@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
 
+@Produces("application/json")
 @Path("/products")
 @Slf4j
 public class ProductResource {
@@ -27,16 +28,16 @@ public class ProductResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<ScrapingResult> getAllProducts() throws ScrapingException {
+    public List<ScrapingResult> getAllProducts() {
         return productScraperService.getAll();
     }
 
     @POST
     public void insertOrReplace(ScrapingResult scrapingResult) {
         val inserted = productScraperService.insertOrReplace(scrapingResult);
-        log.info("New product added");
         if (inserted.isPresent()) {
-            exec.runAsync(() -> {productScraperService.scrapeAndUpdateSingleEntry(inserted.get());});
+            log.info("Product added/replaced: {}", inserted.get().toString());
+            exec.runAsync(() -> productScraperService.scrapeAndUpdateSingleEntry(inserted.get()));
         } else {
             log.warn("Unable to scrape data - insert or update fails for URL: {}", scrapingResult.getProductUrl());
         }
