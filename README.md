@@ -11,6 +11,11 @@ You can run your application in dev mode that enables live coding using:
 ./mvnw compile quarkus:dev
 ```
 
+### Starting local mongodb
+```shell script
+docker run -ti --rm -p 27017:27017 mongo:4.0
+```
+
 ## Packaging and running the application
 
 The application can be packaged using:

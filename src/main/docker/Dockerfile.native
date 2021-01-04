@@ -16,7 +16,6 @@
 ###
 
 # Building stage
-#
 FROM oracle/graalvm-ce:20.3.0-java11 as build
  
 ADD . /build
@@ -37,7 +36,7 @@ RUN source "$HOME/.sdkman/bin/sdkman-init.sh" && mvn --version
  
 RUN native-image --version
  
-RUN source "$HOME/.sdkman/bin/sdkman-init.sh" && mvn -Pnative clean package
+RUN source "$HOME/.sdkman/bin/sdkman-init.sh" && mvn -Pnative clean package -DskipTests
 
 FROM registry.access.redhat.com/ubi8/ubi-minimal:8.3
 WORKDIR /work/
