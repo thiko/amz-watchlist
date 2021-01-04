@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Product REST service</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/wingcss/0.1.8/wing.min.css"/>
+    <!-- Load AngularJS -->
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script type="text/javascript">
+      var app = angular.module("ProductManagement", []);
+
+      //Controller Part
+      app.controller("ProductManagementController", function ($scope, $http) {
+
+        //Initialize page with default data which is blank in this example
+        $scope.products = [];
+
+        $scope.form = {
+          uuid: "",
+          name: "",
+          imageUrl: "",
+          bestSellerRank: 0,
+          lastSyncTimeUtc: "",
+          lastSyncSuccessful: false
+        };
+
+        //Now load the data from server
+        _refreshPageData();
+
+        //HTTP POST methods for add products
+        $scope.add = function () {
+          var data = {"uuid": $scope.form.uuid,
+          "productUrl": $scope.form.productUrl,
+          "imageUrl": $scope.form.imageUrl,
+          "bestSellerRank": $scope.form.bestSellerRank,
+          "lastSyncTimeUtc": $scope.form.lastSyncTimeUtc,
+          "lastSyncSuccessful": $scope.form.lastSyncSuccessful};
+
+          $http({
+            method: "POST",
+            url: '/products',
+            data: angular.toJson(data),
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }).then(_success, _error);
+        };
+
+        // HTTP DELETE
+         $scope.delete = function (productToDelete) {
+
+          $http({
+            method: "DELETE",
+            url: '/products',
+            data: angular.toJson(productToDelete),
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }).then(_success, _error);
+
+        };
+
+        /* Private Methods */
+        //HTTP GET- get all products collection
+        function _refreshPageData() {
+          $http({
+            method: 'GET',
+            url: '/products'
+          }).then(function successCallback(response) {
+            $scope.products = response.data;
+          }, function errorCallback(response) {
+            console.log(response.statusText);
+          });
+        }
+
+        function _success(response) {
+          _refreshPageData();
+          _clearForm();
+        }
+
+        function _error(response) {
+          alert(response.data.message || response.statusText);
+        }
+
+        //Clear the form
+        function _clearForm() {
+          $scope.form.productUrl= ""
+        }
+      });
+    </script>
+</head>
+<body ng-app="ProductManagement" ng-controller="ProductManagementController">
+
+<div class="container">
+    <h1>Amazon BSR Watchlist</h1>
+
+    <h3>Zur Watchlist hinzufügen</h3>
+    <form ng-submit="add()">
+        <div class="row">
+            <div class="col-6"><input type="text" placeholder="Produktlink" ng-model="form.productUrl" size="60"/></div>
+            <input type="submit" value="Add"/>
+        </div>
+    </form>
+
+    <h3>Watchlist</h3>
+    <div class="row">
+        <div class="col-1"></div>
+        <div class="col-5">Name</div>
+        <div class="col-1">BSR</div>
+        <div class="col-3">Letzter Sync</div>
+        <div class="col-1">Löschen</div>
+    </div>
+    <div class="row" ng-repeat="product in products">
+        <div class="col-1"><img style="max-width: 100%; height: auto;" src="{{ product.imageUrl }}" /> </div>
+        <div class="col-5">{{ product.name || "(Daten noch nicht geladen)" }}</div>
+        <div class="col-1">{{ product.bestSellerRank || "--" }}</div>
+        <div class="col-3">{{ (product.lastSyncTimeUtc | date: 'shortTime') || "--" }} ({{ product.lastSyncSuccessful ? "ok" : "nok"}})</div>
+        <div class="col-1">
+            <button class="outline" ng-click="delete(product)">x</button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
