@@ -7,6 +7,8 @@ import com.mongodb.client.MongoCollection;
 import de.headstuff.amazonscraper.model.ScrapingResult;
 import de.headstuff.amazonscraper.worker.ScrapingWorker;
 import io.quarkus.scheduler.Scheduled;
+import io.quarkus.vertx.ConsumeEvent;
+import io.smallrye.common.annotation.Blocking;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -19,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.eclipse.microprofile.context.ManagedExecutor;
 
 @Slf4j
 @ApplicationScoped
@@ -33,6 +36,14 @@ public class ProductScraperService {
   @Scheduled(cron = "{cron.scraping}", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
   public void updateAll() {
     this.getAll().forEach(this::scrapeAndUpdateSingleEntry);
+  }
+
+  @ConsumeEvent("scrapeAndUpdate")
+  @Blocking
+  public void onScrapeAndUpdateEventReceived(ScrapingResult scrapingResult) {
+    if (scrapeAndUpdateSingleEntry(scrapingResult).isPresent()) {
+      log.debug("Event loop completed with result: {}", scrapingResult.toString());
+    }
   }
 
   public Optional<ScrapingResult> scrapeAndUpdateSingleEntry(ScrapingResult scrapingResult) {

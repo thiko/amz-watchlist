@@ -79,6 +79,10 @@
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-scheduler</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-vertx</artifactId>
+    </dependency>
     <!-- native build cannot find logging factory otherwise -->
     <dependency>
       <groupId>org.jboss.slf4j</groupId>
