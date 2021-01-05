@@ -3,7 +3,7 @@ services:
   mongo1:
     image: mongo:4.0
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_DB_USER}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_DB_USER} # taken from .env file or env-variables
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_DB_PASSWORD}
     ports:
       - 27017:27017
