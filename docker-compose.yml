@@ -17,14 +17,21 @@ services:
       MONGO_DB_PASSWORD: ${MONGO_DB_PASSWORD}
       MONGO_DB_HOST: mongo1
       MONGO_DB_PORT: 27017
+    ports:
+      - 8080:8080
     depends_on:
       - mongo1
     restart: always
   caddy:
     image: caddy
     volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
+    environment:
+      MY_DOMAIN: ${MY_DOMAIN}
+      BASIC_AUTH_USER: ${BASIC_AUTH_USER}
+      BASIC_AUTH_PASSWORD_HASH: ${BASIC_AUTH_PASSWORD_HASH}
     depends_on:
       - mongo1
       - amz-watchlist
@@ -32,8 +39,8 @@ services:
     ports:
       - 80:80
       - 443:443
-    command: caddy reverse-proxy --from localhost --to amz-watchlist:8080 
-
+    #command: caddy reverse-proxy --from ${MY_DOMAIN} --to amz-watchlist:8080
+#amzw.my-gateway.de
 volumes:
   mongodb_data_container:
   caddy_data:

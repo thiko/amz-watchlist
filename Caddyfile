@@ -1,0 +1,16 @@
+{
+    # acme_ca https://acme-staging-v02.api.letsencrypt.org/directory
+}
+
+https://{$MY_DOMAIN} {
+  reverse_proxy amz-watchlist:8080
+  rewrite /products /products.html
+  rewrite / /products.html
+
+  basicauth /products* {
+    # caddy hash-password --plaintext some.long.password.string
+  	{$BASIC_AUTH_USER} {$BASIC_AUTH_PASSWORD_HASH}
+  }
+}
+
+
