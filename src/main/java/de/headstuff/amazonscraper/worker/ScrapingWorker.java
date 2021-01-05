@@ -31,15 +31,22 @@ public class ScrapingWorker {
       var pageAsXml = "";
       // load page using HTML Unit and fire scripts
       try (val webClient = new WebClient(BrowserVersion.CHROME)) {
-        webClient.getOptions().setJavaScriptEnabled(true); // Enable JS interpreter, default is true
-        webClient.getOptions().setCssEnabled(false); // Disable css support
-        webClient.getOptions().setThrowExceptionOnScriptError(
-            false); // Whether to throw an exception when js runs incorrectly
+        webClient.getOptions().setUseInsecureSSL(true);
+        webClient.getOptions().setRedirectEnabled(true);
+        webClient.getOptions().setJavaScriptEnabled(true);
+        webClient.getOptions().setCssEnabled(false);
+        webClient.getOptions().setThrowExceptionOnScriptError(false);
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+        webClient.getCookieManager().setCookiesEnabled(false);
         webClient.getOptions().setTimeout(10 * 1000); // Set the connection timeout
+        webClient.getOptions().setDownloadImages(false);
+        webClient.getOptions().setGeolocationEnabled(false);
+        webClient.getOptions().setAppletEnabled(false);
+
         HtmlPage page = webClient.getPage(targetUrl);
         webClient.waitForBackgroundJavaScript(
             30 * 1000); // Wait for js to execute in the background for 30 seconds
+        webClient.setJavaScriptTimeout(35 * 1000);
 
         pageAsXml = page.asXml();
       }
