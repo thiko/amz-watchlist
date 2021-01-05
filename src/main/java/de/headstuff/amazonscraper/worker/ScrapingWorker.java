@@ -44,7 +44,7 @@ public class ScrapingWorker {
         pageAsXml = page.asXml();
       }
 
-      if(pageAsXml.isBlank()) {
+      if (pageAsXml.isBlank()) {
         throw new ScrapingException("Unable to parse page from URI: " + targetUrl);
       }
 

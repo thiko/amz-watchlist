@@ -1,4 +1,4 @@
-# amazon-watchlist project
+# amz-watchlist project
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
@@ -15,6 +15,13 @@ You can run your application in dev mode that enables live coding using:
 ```shell script
 docker run -ti --rm -p 27017:27017 mongo:4.0
 ```
+
+## Environment setup
+All profiles other than dev requires following environment variables set:
+- MONGO_DB_USER
+- MONGO_DB_PASSWORD
+- MONGO_DB_HOST
+- MONGO_DB_PORT
 
 ## Packaging and running the application
 
@@ -47,9 +54,3 @@ Or, if you don't have GraalVM installed, you can run the native executable build
 You can then execute your native executable with: `./target/amazon-scraper-0.1-SNAPSHOT-runner`
 
 If you want to learn more about building native executables, please consult https://quarkus.io/guides/maven-tooling.html.
-
-# RESTEasy JAX-RS
-
-<p>A Hello World RESTEasy resource</p>
-
-Guide: https://quarkus.io/guides/rest-json

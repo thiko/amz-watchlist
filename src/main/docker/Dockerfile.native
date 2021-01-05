@@ -15,7 +15,7 @@
 #
 ###
 
-# Building stage
+# Building stage (TODO: Might be obsolete since quarkus provide an easy to go solution with ./mvnw package -Pnative -Dquarkus.native.container-build=true) - verify & compare
 FROM oracle/graalvm-ce:20.3.0-java11 as build
  
 ADD . /build
