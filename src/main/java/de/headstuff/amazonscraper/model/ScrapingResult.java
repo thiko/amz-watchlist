@@ -14,6 +14,8 @@ public class ScrapingResult {
   String productUrl;
   String imageUrl;
   String bestSellerRank;
+  String ranking;
+  String votes;
   Date lastSyncTimeUtc;
   Boolean lastSyncSuccessful;
 
@@ -24,6 +26,8 @@ public class ScrapingResult {
         .productUrl(document.getString("productUrl"))
         .imageUrl(document.getString("imageUrl"))
         .bestSellerRank(document.getString("bsr"))
+        .ranking(document.getString("ranking"))
+        .votes(document.getString("votes"))
         .lastSyncSuccessful(document.getBoolean("lastSyncSuccessful"))
         .lastSyncTimeUtc(document.getDate("lastSyncTime"))
         .build();
