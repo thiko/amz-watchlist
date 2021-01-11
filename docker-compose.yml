@@ -1,7 +1,8 @@
-version: '3.7'
+version: '2.1' # stay on old version - v3 does not support mem limit without swarm mode
 services:
   mongo1:
     image: mongo:4.0
+    mem_limit: 200m
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_DB_USER} # taken from .env file or env-variables
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_DB_PASSWORD}
@@ -12,6 +13,7 @@ services:
       - mongodb_data_container:/data/db
   amz-watchlist:
     image: thimokoenig/amz-watchlist:latest
+    mem_limit: 500m
     environment:
       MONGO_DB_USER: ${MONGO_DB_USER}
       MONGO_DB_PASSWORD: ${MONGO_DB_PASSWORD}
@@ -24,6 +26,7 @@ services:
     restart: always
   caddy:
     image: caddy
+    mem_limit: 150m
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
@@ -45,3 +48,4 @@ volumes:
   mongodb_data_container:
   caddy_data:
   caddy_config:
+
