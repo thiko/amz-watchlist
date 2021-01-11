@@ -114,6 +114,8 @@ public class ProductScraperService {
         .append("productUrl", scrapingResult.getProductUrl())
         .append("imageUrl", scrapingResult.getImageUrl())
         .append("bsr", scrapingResult.getBestSellerRank())
+        .append("ranking", scrapingResult.getRanking())
+        .append("votes", scrapingResult.getVotes())
         .append("lastSyncSuccessful", scrapingResult.getLastSyncSuccessful())
         .append("lastSyncTime", scrapingResult.getLastSyncTimeUtc());
 

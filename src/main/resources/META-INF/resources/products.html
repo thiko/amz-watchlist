@@ -2,8 +2,10 @@
 <html>
 <head>
   <meta charset="utf-8"/>
-  <title>Product REST service</title>
+  <title>Amazon Watchlist</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/wingcss/0.1.8/wing.min.css"/>
+
   <!-- Load AngularJS -->
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
   <script type="text/javascript">
@@ -91,6 +93,13 @@
       }
     });
   </script>
+  <style>
+    button, td {
+      text-align: center;
+      vertical-align: middle;
+    }
+
+  </style>
 </head>
 <body ng-app="ProductManagement" ng-controller="ProductManagementController">
 
@@ -107,24 +116,24 @@
   </form>
 
   <h3>Watchlist</h3>
-  <div class="row">
-    <div class="col-1"></div>
-    <div class="col-5">Name</div>
-    <div class="col-1">BSR</div>
-    <div class="col-3">Letzter Sync</div>
-    <div class="col-1">Löschen</div>
-  </div>
-  <div class="row" ng-repeat="product in products">
-    <div class="col-1"><img style="max-width: 100%; height: auto;" src="{{ product.imageUrl }}"/>
-    </div>
-    <div class="col-5">{{ product.name || "(Daten noch nicht geladen)" }}</div>
-    <div class="col-1">{{ product.bestSellerRank || "--" }}</div>
-    <div class="col-3">{{ (product.lastSyncTimeUtc | date: 'shortTime') || "--" }} ({{
-      product.lastSyncSuccessful ? "ok" : "nok"}})
-    </div>
-    <div class="col-1">
-      <button class="outline" ng-click="delete(product)">x</button>
-    </div>
+  <div style="overflow-x:auto;">
+  <table width="100%">
+    <tr>
+      <th></th>
+      <th>BSR</th>
+      <th>Rating</th>
+      <th>Letzter Sync.</th>
+      <th>Löschen</th>
+    </tr>
+    <tr ng-repeat="product in products">
+      <td><img style="max-width: 70px; width:100%; height: auto;" src="{{ product.imageUrl }}" alt="{{ product.name }}"/></td>
+      <td>{{ product.bestSellerRank || "--" }}</td>
+      <td>{{ product.ranking || "--" }} <span ng-if="product.votes"> ({{ product.votes }}) </td>
+      <td>{{ (product.lastSyncTimeUtc | date: 'shortTime') || "--" }} ({{
+      product.lastSyncSuccessful ? "ok" : "nok"}})</td>
+      <td><button style="max-width: 30px; width:100%; height: auto; class="outline" ng-click="delete(product)">x</button></td>
+    </tr>
+  </table>
   </div>
 </div>
 
