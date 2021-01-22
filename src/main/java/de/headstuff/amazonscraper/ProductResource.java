@@ -1,6 +1,6 @@
 package de.headstuff.amazonscraper;
 
-import de.headstuff.amazonscraper.model.ScrapingResult;
+import de.headstuff.amazonscraper.model.ProductScrapingResult;
 import de.headstuff.amazonscraper.service.ProductScraperService;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import java.util.List;
@@ -28,25 +28,25 @@ public class ProductResource {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public List<ScrapingResult> getAllProducts() {
+  public List<ProductScrapingResult> getAllProducts() {
     return productScraperService.getAll();
   }
 
   @POST
-  public void insertOrReplace(ScrapingResult scrapingResult) {
-    val inserted = productScraperService.insertOrReplace(scrapingResult);
+  public void insertOrReplace(ProductScrapingResult productScrapingResult) {
+    val inserted = productScraperService.insertOrReplace(productScrapingResult);
     if (inserted.isPresent()) {
       log.info("Product added/replaced: {}", inserted.get().toString());
       bus.sendAndForget("scrapeAndUpdate", inserted.get());
     } else {
       log.warn("Unable to scrape data - insert or update fails for URL: {}",
-          scrapingResult.getProductUrl());
+          productScrapingResult.getProductUrl());
     }
   }
 
   @DELETE
-  public void delete(ScrapingResult scrapingResult) {
-    val deletedEntries = productScraperService.deleteScrapingResult(scrapingResult);
+  public void delete(ProductScrapingResult productScrapingResult) {
+    val deletedEntries = productScraperService.deleteScrapingResult(productScrapingResult);
     log.info("{} entries deleted", deletedEntries);
   }
 }

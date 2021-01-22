@@ -4,8 +4,8 @@ import static com.mongodb.client.model.Filters.eq;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
-import de.headstuff.amazonscraper.model.ScrapingResult;
-import de.headstuff.amazonscraper.worker.ScrapingWorker;
+import de.headstuff.amazonscraper.model.ProductScrapingResult;
+import de.headstuff.amazonscraper.worker.ProductScrapingWorker;
 import io.quarkus.scheduler.Scheduled;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.common.annotation.Blocking;
@@ -27,7 +27,7 @@ import org.bson.types.ObjectId;
 public class ProductScraperService {
 
   @Inject
-  ScrapingWorker scrapingWorker;
+  ProductScrapingWorker productScrapingWorker;
 
   @Inject
   MongoClient mongoClient;
@@ -39,70 +39,70 @@ public class ProductScraperService {
 
   @ConsumeEvent("scrapeAndUpdate")
   @Blocking
-  public void onScrapeAndUpdateEventReceived(ScrapingResult scrapingResult) {
-    if (scrapeAndUpdateSingleEntry(scrapingResult).isPresent()) {
-      log.debug("Event loop completed with result: {}", scrapingResult.toString());
+  public void onScrapeAndUpdateEventReceived(ProductScrapingResult productScrapingResult) {
+    if (scrapeAndUpdateSingleEntry(productScrapingResult).isPresent()) {
+      log.debug("Event loop completed with result: {}", productScrapingResult.toString());
     }
   }
 
-  public Optional<ScrapingResult> scrapeAndUpdateSingleEntry(ScrapingResult scrapingResult) {
+  public Optional<ProductScrapingResult> scrapeAndUpdateSingleEntry(ProductScrapingResult productScrapingResult) {
     try {
-      log.debug("Start scraping data from {}", scrapingResult.getProductUrl());
-      val updatedResult = scrapingWorker.scrapeProduct(scrapingResult.getProductUrl());
-      updatedResult.setUuid(scrapingResult.getUuid());
-      updatedResult.setProductUrl(scrapingResult.getProductUrl());
+      log.debug("Start scraping data from {}", productScrapingResult.getProductUrl());
+      val updatedResult = productScrapingWorker.scrapeProduct(productScrapingResult.getProductUrl());
+      updatedResult.setUuid(productScrapingResult.getUuid());
+      updatedResult.setProductUrl(productScrapingResult.getProductUrl());
       updatedResult.setLastSyncTimeUtc(new Date());
       updatedResult.setLastSyncSuccessful(true);
-      log.debug("Scraping {} successfully.", scrapingResult.getName());
+      log.debug("Scraping {} successfully.", productScrapingResult.getName());
       return this.insertOrReplace(updatedResult);
     } catch (Exception e) {
-      scrapingResult.setLastSyncTimeUtc(new Date());
-      scrapingResult.setLastSyncSuccessful(false);
-      log.warn("Scraping {} was not successful.", scrapingResult.getName());
-      return this.insertOrReplace(scrapingResult);
+      productScrapingResult.setLastSyncTimeUtc(new Date());
+      productScrapingResult.setLastSyncSuccessful(false);
+      log.warn("Scraping {} was not successful.", productScrapingResult.getName());
+      return this.insertOrReplace(productScrapingResult);
     }
   }
 
-  public List<ScrapingResult> getAll() {
-    val scrapingResults = new ArrayList<ScrapingResult>();
+  public List<ProductScrapingResult> getAll() {
+    val scrapingResults = new ArrayList<ProductScrapingResult>();
 
     try (val cursor = getCollection().find().iterator()) {
       while (cursor.hasNext()) {
         val document = cursor.next();
-        scrapingResults.add(ScrapingResult.fromDocument(document));
+        scrapingResults.add(ProductScrapingResult.fromDocument(document));
       }
     }
 
     return scrapingResults;
   }
 
-  public Optional<ScrapingResult> getScrapingResultById(ObjectId id) {
+  public Optional<ProductScrapingResult> getScrapingResultById(ObjectId id) {
     val doc = getCollection().find().filter(eq("_id", id)).first();
     if (doc == null) {
       return Optional.empty();
     }
-    return Optional.of(ScrapingResult.fromDocument(doc));
+    return Optional.of(ProductScrapingResult.fromDocument(doc));
   }
 
-  public Optional<ScrapingResult> getScrapingResultByUuid(String uuid) {
+  public Optional<ProductScrapingResult> getScrapingResultByUuid(String uuid) {
     val doc = getCollection().find().filter(eq("uuid", uuid)).first();
     if (doc == null) {
       return Optional.empty();
     }
-    return Optional.of(ScrapingResult.fromDocument(doc));
+    return Optional.of(ProductScrapingResult.fromDocument(doc));
   }
 
-  public long deleteScrapingResult(ScrapingResult scrapingResult) {
-    val deletionResult = getCollection().deleteOne(eq("uuid", scrapingResult.getUuid()));
+  public long deleteScrapingResult(ProductScrapingResult productScrapingResult) {
+    val deletionResult = getCollection().deleteOne(eq("uuid", productScrapingResult.getUuid()));
     return deletionResult.getDeletedCount();
   }
 
-  public Optional<ScrapingResult> insertOrReplace(ScrapingResult scrapingResult) {
-    log.debug("Insert or replace data: {}", scrapingResult.toString());
+  public Optional<ProductScrapingResult> insertOrReplace(ProductScrapingResult productScrapingResult) {
+    log.debug("Insert or replace data: {}", productScrapingResult.toString());
     String uuid = "";
     boolean insertNewEntry = false;
-    if (scrapingResult.getUuid() != null && !scrapingResult.getUuid().isEmpty()) {
-      uuid = scrapingResult.getUuid();
+    if (productScrapingResult.getUuid() != null && !productScrapingResult.getUuid().isEmpty()) {
+      uuid = productScrapingResult.getUuid();
     } else {
       uuid = UUID.randomUUID().toString();
       insertNewEntry = true;
@@ -110,14 +110,14 @@ public class ProductScraperService {
 
     val document = new Document()
         .append("uuid", uuid)
-        .append("name", scrapingResult.getName())
-        .append("productUrl", scrapingResult.getProductUrl())
-        .append("imageUrl", scrapingResult.getImageUrl())
-        .append("bsr", scrapingResult.getBestSellerRank())
-        .append("ranking", scrapingResult.getRanking())
-        .append("votes", scrapingResult.getVotes())
-        .append("lastSyncSuccessful", scrapingResult.getLastSyncSuccessful())
-        .append("lastSyncTime", scrapingResult.getLastSyncTimeUtc());
+        .append("name", productScrapingResult.getName())
+        .append("productUrl", productScrapingResult.getProductUrl())
+        .append("imageUrl", productScrapingResult.getImageUrl())
+        .append("bsr", productScrapingResult.getBestSellerRank())
+        .append("ranking", productScrapingResult.getRanking())
+        .append("votes", productScrapingResult.getVotes())
+        .append("lastSyncSuccessful", productScrapingResult.getLastSyncSuccessful())
+        .append("lastSyncTime", productScrapingResult.getLastSyncTimeUtc());
 
     if (insertNewEntry) {
       val updatedEntryId = Objects

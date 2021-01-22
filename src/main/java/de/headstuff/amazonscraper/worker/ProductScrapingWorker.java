@@ -1,10 +1,7 @@
 package de.headstuff.amazonscraper.worker;
 
-import com.gargoylesoftware.htmlunit.BrowserVersion;
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import de.headstuff.amazonscraper.exception.ScrapingException;
-import de.headstuff.amazonscraper.model.ScrapingResult;
+import de.headstuff.amazonscraper.model.ProductScrapingResult;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -19,39 +16,19 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.TextNode;
 
 @ApplicationScoped
-public class ScrapingWorker {
+public class ProductScrapingWorker extends AbstractScrapingWorker {
 
     private final String BSR_REGEX = ".*Nr\\.\\W(\\d+[,.]?\\d*)\\Win Bücher.*";
 
-    public ScrapingResult scrapeProduct(String targetUrl) {
+    public ProductScrapingResult scrapeProduct(String targetUrl) {
 
         if (targetUrl.isEmpty()) {
             throw new ScrapingException("Unable to scrape the page without an URL");
         }
 
         try {
-            var pageAsXml = "";
             // load page using HTML Unit and fire scripts
-            try (val webClient = new WebClient(BrowserVersion.CHROME)) {
-                webClient.getOptions().setUseInsecureSSL(true);
-                webClient.getOptions().setRedirectEnabled(true);
-                webClient.getOptions().setJavaScriptEnabled(true);
-                webClient.getOptions().setCssEnabled(false);
-                webClient.getOptions().setThrowExceptionOnScriptError(false);
-                webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
-                webClient.getCookieManager().setCookiesEnabled(false);
-                webClient.getOptions().setTimeout(10 * 1000); // Set the connection timeout
-                webClient.getOptions().setDownloadImages(false);
-                webClient.getOptions().setGeolocationEnabled(false);
-                webClient.getOptions().setAppletEnabled(false);
-
-                HtmlPage page = webClient.getPage(targetUrl);
-                webClient.waitForBackgroundJavaScript(
-                        30 * 1000); // Wait for js to execute in the background for 30 seconds
-                webClient.setJavaScriptTimeout(35 * 1000);
-
-                pageAsXml = page.asXml();
-            }
+            var pageAsXml = this.getPageAsXml(targetUrl);
 
             if (pageAsXml.isBlank()) {
                 throw new ScrapingException("Unable to parse page from URI: " + targetUrl);
@@ -60,7 +37,7 @@ public class ScrapingWorker {
             // Jsoup parsing
             val doc = Jsoup.parse(pageAsXml, targetUrl);
 
-            return ScrapingResult.builder()
+            return ProductScrapingResult.builder()
                     .bestSellerRank(extractBsr(doc).orElse(""))
                     .name(extractTitle(doc).orElse(""))
                     .imageUrl(extractImageUrl(doc).orElse(""))
@@ -82,6 +59,10 @@ public class ScrapingWorker {
 
     private Optional<String> extractRanking(Document doc) {
         val parent = doc.getElementById("acrPopover");
+        if(parent == null || parent.children() == null) {
+            return Optional.empty();
+        }
+
         val ratingSpan = parent.children().stream().filter(element -> element.text().contains("von 5")).findFirst();
 
         if (ratingSpan.isEmpty()) {

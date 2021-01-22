@@ -7,7 +7,7 @@ import org.bson.Document;
 
 @Data
 @Builder
-public class ScrapingResult {
+public class ProductScrapingResult {
 
   String uuid;
   String name;
@@ -19,8 +19,8 @@ public class ScrapingResult {
   Date lastSyncTimeUtc;
   Boolean lastSyncSuccessful;
 
-  public static ScrapingResult fromDocument(Document document) {
-    return ScrapingResult.builder()
+  public static ProductScrapingResult fromDocument(Document document) {
+    return ProductScrapingResult.builder()
         .uuid(document.getString("uuid"))
         .name(document.getString("name"))
         .productUrl(document.getString("productUrl"))
