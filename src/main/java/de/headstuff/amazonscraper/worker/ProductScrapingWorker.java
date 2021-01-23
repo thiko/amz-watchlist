@@ -2,23 +2,26 @@ package de.headstuff.amazonscraper.worker;
 
 import de.headstuff.amazonscraper.exception.ScrapingException;
 import de.headstuff.amazonscraper.model.ProductScrapingResult;
-
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.enterprise.context.ApplicationScoped;
-
+import lombok.Getter;
 import lombok.val;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.TextNode;
 
+import javax.enterprise.context.ApplicationScoped;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 @ApplicationScoped
 public class ProductScrapingWorker extends AbstractScrapingWorker {
 
     private final String BSR_REGEX = ".*Nr\\.\\W(\\d+[,.]?\\d*)\\Win Bücher.*";
+
+    @Getter
+    private boolean working;
 
     public ProductScrapingResult scrapeProduct(String targetUrl) {
 
@@ -27,6 +30,7 @@ public class ProductScrapingWorker extends AbstractScrapingWorker {
         }
 
         try {
+            working = true;
             // load page using HTML Unit and fire scripts
             var pageAsXml = this.getPageAsXml(targetUrl);
 
@@ -46,6 +50,8 @@ public class ProductScrapingWorker extends AbstractScrapingWorker {
                     .build();
         } catch (IOException | ParseException ex) {
             throw new ScrapingException(ex);
+        } finally {
+            working = false;
         }
     }
 
@@ -59,7 +65,7 @@ public class ProductScrapingWorker extends AbstractScrapingWorker {
 
     private Optional<String> extractRanking(Document doc) {
         val parent = doc.getElementById("acrPopover");
-        if(parent == null || parent.children() == null) {
+        if (parent == null || parent.children() == null) {
             return Optional.empty();
         }
 
