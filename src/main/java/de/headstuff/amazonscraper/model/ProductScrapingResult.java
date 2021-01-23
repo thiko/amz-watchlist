@@ -51,7 +51,7 @@ public class ProductScrapingResult extends AbstractScrapingResult {
                 .append("ranking", ObjectUtils.defaultIfNull(ranking, ""))
                 .append("votes", ObjectUtils.defaultIfNull(votes, ""))
                 .append("lastSyncSuccessful", ObjectUtils.defaultIfNull(lastSyncSuccessful, ""))
-                .append("lastSyncTime", ObjectUtils.defaultIfNull(lastSyncTimeUtc, ""));
+                .append("lastSyncTime", ObjectUtils.defaultIfNull(lastSyncTimeUtc, new Date()));
 
         return document;
     }
