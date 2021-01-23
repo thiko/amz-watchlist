@@ -1,9 +1,7 @@
 package de.headstuff.amazonscraper.model;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
-import lombok.val;
 import org.apache.commons.lang3.ObjectUtils;
 import org.bson.Document;
 
@@ -12,6 +10,8 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @SuperBuilder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProductScrapingResult extends AbstractScrapingResult {
 
     String name;
