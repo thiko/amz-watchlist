@@ -39,7 +39,7 @@ public class CategoryScrapingResult extends AbstractScrapingResult {
         doc.append("categoryUrl", ObjectUtils.defaultIfNull(categoryUrl, ""));
         doc.append("highestRankedProductLink", ObjectUtils.defaultIfNull(highestRankedProductLink, ""));
         doc.append("lastSyncTimeUtc", ObjectUtils.defaultIfNull(lastSyncTimeUtc, new Date()));
-        doc.append("lastSyncSuccessful", ObjectUtils.defaultIfNull(lastSyncSuccessful, ""));
+        doc.append("lastSyncSuccessful", ObjectUtils.defaultIfNull(lastSyncSuccessful, false));
 
         if (highestRankedProduct != null)
             doc.append("highestRankedProduct", highestRankedProduct);
