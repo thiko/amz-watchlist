@@ -1,14 +1,14 @@
 <!doctype html>
 <html>
 <head>
-  <meta charset="utf-8"/>
-  <title>Amazon Watchlist</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/wingcss/0.1.8/wing.min.css"/>
+    <meta charset="utf-8"/>
+    <title>Amazon Watchlist</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/wingcss/0.1.8/wing.min.css"/>
 
-  <!-- Load AngularJS -->
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
-  <script type="text/javascript">
+    <!-- Load AngularJS -->
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script type="text/javascript">
     var app = angular.module("ProductManagement", []);
 
     //Controller Part
@@ -76,6 +76,16 @@
         }, function errorCallback(response) {
           console.log(response.statusText);
         });
+
+        $http({
+          method: 'GET',
+          url: '/system'
+        }).then(function successCallback(response) {
+          $scope.system = response.data;
+        }, function errorCallback(response) {
+          console.log(response.statusText);
+        });
+
       }
 
       function _success(response) {
@@ -92,49 +102,56 @@
         $scope.form.productUrl = ""
       }
     });
-  </script>
-  <style>
+
+    </script>
+    <style>
     button, td {
       text-align: center;
       vertical-align: middle;
     }
 
-  </style>
+
+    </style>
 </head>
 <body ng-app="ProductManagement" ng-controller="ProductManagementController">
 
 <div class="container">
-  <h1>Amazon BSR Watchlist</h1>
+    <h1>Amazon BSR Watchlist</h1>
 
-  <h3>Zur Watchlist hinzufügen</h3>
-  <form ng-submit="add()">
-    <div class="row">
-      <div class="col-6"><input type="text" placeholder="Produktlink" ng-model="form.productUrl"
-                                size="60"/></div>
-      <input type="submit" value="Add"/>
+    <h3>Zur Watchlist hinzufügen</h3>
+    <form ng-submit="add()">
+        <div class="row">
+            <div class="col-6"><input type="text" placeholder="Produktlink" ng-model="form.productUrl"
+                                      size="60"/></div>
+            <input type="submit" value="Add"/>
+        </div>
+    </form>
+
+    <h3>Watchlist</h3>
+    <small>(Productworker busy?: {{ system.productScraperWorking }} / Categoryworker busy?: {{ system.categoryScraperWorking }} )</small>
+    <div style="overflow-x:auto;">
+        <table width="100%">
+            <tr>
+                <th></th>
+                <th>BSR</th>
+                <th>Rating</th>
+                <th>Letzter Sync.</th>
+                <th>Löschen</th>
+            </tr>
+            <tr ng-repeat="product in products">
+                <td><img style="max-width: 70px; width:100%; height: auto;" src="{{ product.imageUrl }}"
+                         alt="{{ product.name }}"/></td>
+                <td>{{ product.bestSellerRank || "--" }}</td>
+                <td>{{ product.ranking || "--" }} <span ng-if="product.votes"> ({{ product.votes }})</td>
+                <td>{{ (product.lastSyncTimeUtc | date: 'shortTime') || "--" }} ({{
+                    product.lastSyncSuccessful ? "ok" : "nok"}})
+                </td>
+                <td>
+                    <button style="max-width: 30px; width:100%; height: auto; class=" outline
+                    " ng-click="delete(product)">x</button></td>
+            </tr>
+        </table>
     </div>
-  </form>
-
-  <h3>Watchlist</h3>
-  <div style="overflow-x:auto;">
-  <table width="100%">
-    <tr>
-      <th></th>
-      <th>BSR</th>
-      <th>Rating</th>
-      <th>Letzter Sync.</th>
-      <th>Löschen</th>
-    </tr>
-    <tr ng-repeat="product in products">
-      <td><img style="max-width: 70px; width:100%; height: auto;" src="{{ product.imageUrl }}" alt="{{ product.name }}"/></td>
-      <td>{{ product.bestSellerRank || "--" }}</td>
-      <td>{{ product.ranking || "--" }} <span ng-if="product.votes"> ({{ product.votes }}) </td>
-      <td>{{ (product.lastSyncTimeUtc | date: 'shortTime') || "--" }} ({{
-      product.lastSyncSuccessful ? "ok" : "nok"}})</td>
-      <td><button style="max-width: 30px; width:100%; height: auto; class="outline" ng-click="delete(product)">x</button></td>
-    </tr>
-  </table>
-  </div>
 </div>
 
 </body>
