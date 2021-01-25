@@ -55,7 +55,7 @@ public class CategoryScrapingResult extends AbstractScrapingResult {
                 .categoryPath(document.getString("categoryPath"))
                 .categoryUrl(document.getString("categoryUrl"))
                 .highestRankedProductLink(document.getString("highestRankedProductLink"))
-                .highestRankedProduct(document.getEmbedded(Collections.singletonList("ranking"), ProductScrapingResult.class))
+                .highestRankedProduct(document.getEmbedded(Collections.singletonList("highestRankedProduct"), ProductScrapingResult.class))
                 .lastSyncSuccessful(document.getBoolean("lastSyncSuccessful"))
                 .lastSyncTimeUtc(document.getDate("lastSyncTimeUtc"))
                 .build();

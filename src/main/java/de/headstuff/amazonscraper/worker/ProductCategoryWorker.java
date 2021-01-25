@@ -5,6 +5,7 @@ import de.headstuff.amazonscraper.model.CategoryScrapingResult;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -103,30 +104,35 @@ public class ProductCategoryWorker extends AbstractScrapingWorker {
     }
 
     private void appendProductMetaDataFromOverviewPage(CategoryScrapingResult currentScrapingResult) throws IOException {
-        var pageContent = getPageAsXml(currentScrapingResult.getCategoryUrl());
-        val doc = Jsoup.parse(pageContent, currentScrapingResult.getCategoryUrl());
-        val elementContainer = doc.getElementById("zg-ordered-list");
+        int retryCounter = 0;
+        do {
+            retryCounter++;
+            var pageContent = getPageAsXml(currentScrapingResult.getCategoryUrl());
+            val doc = Jsoup.parse(pageContent, currentScrapingResult.getCategoryUrl());
+            val elementContainer = doc.getElementById("zg-ordered-list");
 
-        if (elementContainer == null) {
-            log.warn("Unable to scrape product meta data from {}", currentScrapingResult.getCategoryUrl());
-            return;
-        }
+            if (elementContainer == null) {
+                log.warn("Unable to scrape product meta data from {}", currentScrapingResult.getCategoryUrl());
+                return;
+            }
 
-        val allItems = elementContainer.select(".zg-item-immersion");
-        // select the first one
-        val bestProduct = allItems.stream()
-                .filter(element -> element.text().contains("#1")).findFirst();
+            val allItems = elementContainer.select(".zg-item-immersion");
+            // select the first one
+            val bestProduct = allItems.stream()
+                    .filter(element -> element.text().contains("#1")).findFirst();
 
-        if (bestProduct.isEmpty()) {
-            return;
-        }
+            if (bestProduct.isEmpty()) {
+                return;
+            }
 
-        val productLink = bestProduct.get().select("a").attr("href");
-        if (productLink == null || productLink.length() == 0) {
-            return;
-        }
-        currentScrapingResult.setHighestRankedProductLink("https://amazon.de/" + productLink);
-        this.appendAdditionalScrapingTargets(currentScrapingResult, doc);
+            val productLink = bestProduct.get().select("a").attr("href");
+            if (productLink == null || productLink.length() == 0) {
+                return;
+            }
+            currentScrapingResult.setHighestRankedProductLink("https://amazon.de/" + productLink);
+            this.appendAdditionalScrapingTargets(currentScrapingResult, doc);
+
+        } while (StringUtils.isEmpty(currentScrapingResult.getHighestRankedProductLink()) && retryCounter < 3);
     }
 
 
