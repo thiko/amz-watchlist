@@ -42,7 +42,7 @@ public class CategoryScrapingResult extends AbstractScrapingResult {
         doc.append("lastSyncSuccessful", ObjectUtils.defaultIfNull(lastSyncSuccessful, false));
 
         if (highestRankedProduct != null)
-            doc.append("highestRankedProduct", highestRankedProduct);
+            doc.append("highestRankedProduct", highestRankedProduct.toDocument());
 
         return doc;
     }
