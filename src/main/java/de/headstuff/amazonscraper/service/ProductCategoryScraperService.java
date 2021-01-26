@@ -75,6 +75,7 @@ public class ProductCategoryScraperService implements IProductScraperService<Cat
      * Iterates through all categories and updates the linked products. The product-link itself does not get updated.
      */
     private void updateHighestRankedProductsInCategories() {
+        log.info("Start scraping highest ranked products for existing categories");
         updateHighestRankedProductsInCategories(getAll());
     }
 

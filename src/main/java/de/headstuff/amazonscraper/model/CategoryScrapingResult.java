@@ -49,16 +49,21 @@ public class CategoryScrapingResult extends AbstractScrapingResult {
 
 
     public static CategoryScrapingResult fromDocument(Document document) {
-        return CategoryScrapingResult.builder()
+        val catBuilder = CategoryScrapingResult.builder()
                 .uuid(document.getString("uuid"))
                 .categoryName(document.getString("categoryName"))
                 .categoryPath(document.getString("categoryPath"))
                 .categoryUrl(document.getString("categoryUrl"))
                 .highestRankedProductLink(document.getString("highestRankedProductLink"))
-                .highestRankedProduct(document.getEmbedded(Collections.singletonList("highestRankedProduct"), ProductScrapingResult.class))
                 .lastSyncSuccessful(document.getBoolean("lastSyncSuccessful"))
-                .lastSyncTimeUtc(document.getDate("lastSyncTimeUtc"))
-                .build();
+                .lastSyncTimeUtc(document.getDate("lastSyncTimeUtc"));
+
+        val embeddedProduct = document.getEmbedded(Collections.singletonList("highestRankedProduct"), Document.class);
+        if (embeddedProduct != null && !embeddedProduct.isEmpty()) {
+            catBuilder.highestRankedProduct(ProductScrapingResult.fromDocument(embeddedProduct));
+        }
+
+        return catBuilder.build();
     }
 
 }
