@@ -113,7 +113,7 @@ public class ProductCategoryWorker extends AbstractScrapingWorker {
 
             if (elementContainer == null) {
                 log.warn("Unable to scrape product meta data from {}", currentScrapingResult.getCategoryUrl());
-                return;
+                continue;
             }
 
             val allItems = elementContainer.select(".zg-item-immersion");
@@ -122,12 +122,12 @@ public class ProductCategoryWorker extends AbstractScrapingWorker {
                     .filter(element -> element.text().contains("#1")).findFirst();
 
             if (bestProduct.isEmpty()) {
-                return;
+                continue;
             }
 
             val productLink = bestProduct.get().select("a").attr("href");
             if (productLink == null || productLink.length() == 0) {
-                return;
+                continue;
             }
             currentScrapingResult.setHighestRankedProductLink("https://amazon.de/" + productLink);
             this.appendAdditionalScrapingTargets(currentScrapingResult, doc);

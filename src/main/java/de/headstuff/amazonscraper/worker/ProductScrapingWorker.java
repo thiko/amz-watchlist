@@ -28,7 +28,10 @@ public class ProductScrapingWorker extends AbstractScrapingWorker {
         if (targetUrl.isEmpty()) {
             throw new ScrapingException("Unable to scrape the page without an URL");
         }
-
+        ProductScrapingResult result = null;
+        do {
+            // TODO: continue here 
+        } while(result == null || result.getBestSellerRank() == null || result.getBestSellerRank().isEmpty());
         try {
             working = true;
             // load page using HTML Unit and fire scripts
