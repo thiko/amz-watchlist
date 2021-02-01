@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 public class ProductScrapingWorker extends AbstractScrapingWorker {
 
     private final String BSR_REGEX = ".*Nr\\.\\W(\\d+[,.]?\\d*)\\Win Bücher.*";
+    private final int MAX_RETRY = 5;
 
     @Getter
     private boolean working;
@@ -29,33 +30,50 @@ public class ProductScrapingWorker extends AbstractScrapingWorker {
             throw new ScrapingException("Unable to scrape the page without an URL");
         }
         ProductScrapingResult result = null;
+        int retryCounter = 0;
         do {
-            // TODO: continue here 
-        } while(result == null || result.getBestSellerRank() == null || result.getBestSellerRank().isEmpty());
-        try {
-            working = true;
-            // load page using HTML Unit and fire scripts
-            var pageAsXml = this.getPageAsXml(targetUrl);
+            try {
+                retryCounter++;
+                working = true;
+                // load page using HTML Unit and fire scripts
+                var pageAsXml = this.getPageAsXml(targetUrl);
 
-            if (pageAsXml.isBlank()) {
-                throw new ScrapingException("Unable to parse page from URI: " + targetUrl);
+                if (pageAsXml.isBlank()) {
+                    continue;
+                }
+
+                // Jsoup parsing
+                val doc = Jsoup.parse(pageAsXml, targetUrl);
+
+                result = ProductScrapingResult.builder()
+                        .bestSellerRank(extractBsr(doc).orElse(""))
+                        .name(extractTitle(doc).orElse(""))
+                        .imageUrl(extractImageUrl(doc).orElse(""))
+                        .ranking(extractRanking(doc).orElse(""))
+                        .votes(extractVotes(doc).orElse(""))
+                        .build();
+            } catch (IOException | ParseException ex) {
+                // ignore
+            } finally {
+                working = false;
             }
+        } while (isResultInvalid(result) || retryCounter >= MAX_RETRY);
 
-            // Jsoup parsing
-            val doc = Jsoup.parse(pageAsXml, targetUrl);
-
-            return ProductScrapingResult.builder()
-                    .bestSellerRank(extractBsr(doc).orElse(""))
-                    .name(extractTitle(doc).orElse(""))
-                    .imageUrl(extractImageUrl(doc).orElse(""))
-                    .ranking(extractRanking(doc).orElse(""))
-                    .votes(extractVotes(doc).orElse(""))
-                    .build();
-        } catch (IOException | ParseException ex) {
-            throw new ScrapingException(ex);
-        } finally {
-            working = false;
+        if (isResultInvalid(result)) {
+            throw new ScrapingException("Unable to scrape product from: " + targetUrl);
         }
+
+        return result;
+    }
+
+    /**
+     * Returns true if the given result is INVALID.
+     *
+     * @param result - result to check.
+     * @return true if result is invalid.
+     */
+    private boolean isResultInvalid(ProductScrapingResult result) {
+        return result == null || result.getBestSellerRank() == null || result.getBestSellerRank().isEmpty();
     }
 
     private Optional<String> extractVotes(Document doc) {
